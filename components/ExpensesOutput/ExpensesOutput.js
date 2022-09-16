@@ -1,18 +1,18 @@
-import { View, StyleSheet } from "react-native";
+import {View, StyleSheet, Text} from "react-native";
 import ExpensesSummary from "./ExpensesSummary";
 import ExpensesList from "./ExpensesList";
 import { GlobalStyles } from "../../constants/styles";
-import { DUMMY_EXPENSES } from "../../data/dummy-expenses";
-import { useSelector } from "react-redux";
 
-function ExpensesOutput({ expenses, expensesPeriod }) {
-  const id = useSelector((state) => state.expenses.expenses);
-  const expensesTest = DUMMY_EXPENSES.filter((expense) => expense.id === id);
+function ExpensesOutput({ expenses, expensesPeriod, fallbackText }) {
+  let content = <Text style={styles.infoText}>{fallbackText}</Text>;
 
+  if (expenses.length > 0) {
+    content =  <ExpensesList expenses={expenses} />
+  }
   return (
     <View style={styles.container}>
-      <ExpensesSummary expenses={expensesTest} periodName={expensesPeriod} />
-      <ExpensesList expenses={expensesTest} />
+      <ExpensesSummary expenses={expenses} periodName={expensesPeriod} />
+      {content}
     </View>
   );
 }
@@ -26,4 +26,10 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     backgroundColor: GlobalStyles.colors.primary700,
   },
+  infoText: {
+    color: 'white',
+    fontSize: 16,
+    marginTop: 32,
+    textAlign: 'center',
+  }
 });

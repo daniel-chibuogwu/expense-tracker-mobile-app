@@ -3,3 +3,7 @@ export function getFormattedDate(date) {
     date.getMonth() + 1 < 10 ? "0" : ""
   }${date.getMonth() + 1}-${date.getFullYear()}`;
 }
+
+export function getDateMinusDays(date, days) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - days);
+}

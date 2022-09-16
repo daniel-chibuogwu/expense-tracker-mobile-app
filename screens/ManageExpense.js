@@ -1,13 +1,12 @@
 import { Text, View, StyleSheet } from "react-native";
-import { useLayoutEffect } from "react";
+import { useContext, useLayoutEffect } from "react";
 import IconButton from "../components/UI/IconButton";
 import { GlobalStyles } from "../constants/styles";
 import Button from "../components/UI/Button";
-import { useDispatch } from "react-redux";
-import { updateExpense } from "../store/redux/expensesSlice";
+import { ExpensesContext } from "../store/context/expenses-context";
 
 function ManageExpense({ route, navigation }) {
-  const dispatch = useDispatch();
+  const expensesCtx = useContext(ExpensesContext);
 
   const editedExpenseId = route.params?.expenseId; //if the optional chaining parameter is not there, this would throw an error.
   const isEditing = !!editedExpenseId; //isEditing is now a Boolean value thanks to !!
@@ -20,6 +19,7 @@ function ManageExpense({ route, navigation }) {
 
   function deleteExpenseHandler() {
     navigation.goBack();
+    expensesCtx.deleteExpense(editedExpenseId);
   }
 
   function cancelHandler() {
@@ -27,17 +27,17 @@ function ManageExpense({ route, navigation }) {
   }
 
   function confirmHandler() {
-    // navigation.goBack();
-    dispatch(
-      updateExpense([
-        "edit",
-        { description: "desc", date: "date", amount: "amount" },
-      ])
-    );
+    if (isEditing) {
+      expensesCtx.updateExpense(editedExpenseId, {description: "Test Date",amount: 25.08, date: new Date('2021-10-06')});
+    } else {
+      expensesCtx.addExpense({description: "test", date: new Date('2022-05-19'), amount: 25.08});
+    }
+    navigation.goBack();
   }
 
   return (
     <View style={styles.container}>
+
       <View style={styles.buttonContainer}>
         <Button style={styles.button} mode="flat" onPress={cancelHandler}>
           Cancel

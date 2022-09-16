@@ -1,4 +1,5 @@
 import { createContext, useReducer } from "react";
+import { DUMMY_EXPENSES } from "../../data/dummy-expenses";
 
 export const ExpensesContext = createContext({
   //All this here are set as default values and useful for autocomplete
@@ -13,14 +14,27 @@ function expensesReducer(state, action) {
       const id = new Date().toString + Math.random().toString;
       return [{ ...action.payload, id: id }, ...state];
     case "UPDATE":
+      const updatableExpenseIndex = state.findIndex(
+        (expense) => expense.id === action.payload.id
+      );
+      const updatableExpense = state[updatableExpenseIndex];
+      // this gives us the updated Item.
+      const updatedItem = {
+        ...updatableExpense,
+        ...action.payload.data,
+      };
+      const updatedExpenses = [...state]; //doing this to keep things immutatable.
+      updatedExpenses[updatableExpenseIndex] = updatedItem;
+      return updatedExpenses;
     case "DELETE":
+      return state.filter((expense) => expense.id !== action.payload); // this returns a new arrqy.
     default:
       return state;
   }
 }
 
 function ExpensesContextProvider({ children }) {
-  const [expenseState, dispatch] = useReducer(expensesReducer);
+  const [expensesState, dispatch] = useReducer(expensesReducer, DUMMY_EXPENSES);
   function addExpense(expenseData) {
     dispatch({ type: "ADD", payload: expenseData });
   }
@@ -30,10 +44,20 @@ function ExpensesContextProvider({ children }) {
   }
 
   function updateExpense(id, expenseData) {
-    dispatch({ type: "UPDATE", payload: { id: id, expenseData: expenseData } });
+    dispatch({ type: "UPDATE", payload: { id: id, data: expenseData } });
   }
 
-  return <ExpensesContext.Provider>{children}</ExpensesContext.Provider>;
+  const value = {
+    expenses: expensesState,
+    addExpense: addExpense,
+    deleteExpense: deleteExpense,
+    updateExpense: updateExpense,
+  };
+  return (
+    <ExpensesContext.Provider value={value}>
+      {children}
+    </ExpensesContext.Provider>
+  );
 }
 
 export default ExpensesContextProvider;
